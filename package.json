@@ -70,7 +70,7 @@
   },
   "lint-staged": {
     "*.ts": [
-      "eslint --cache --fix",
+      "eslint --fix",
       "prettier --write",
       "git add ."
     ]

@@ -1,4 +1,4 @@
-![](honks-logo.svg)
+![](https://raw.githubusercontent.com/drizzer14/honks/master/honks-logo.svg)
 
 # Honks
 
