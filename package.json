@@ -1,11 +1,11 @@
 {
   "name": "honks",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "author": "Dmytro Vasylkivskyi <drizzer14@gmail.com>",
   "license": "MIT",
-  "repository": "git:drizzer14/honks",
+  "repository": "github:drizzer14/honks",
   "description": "React hooks for your everyday life.",
   "keywords": [
     "react",
@@ -19,7 +19,6 @@
     "build:dts": "tsc -p tsconfig.json",
     "build": "npm-run-all -s build:clear -p build:copy build:js build:dts",
     "release": "standard-version",
-    "prepack": "yarn build",
     "publication": "yarn publish lib"
   },
   "devDependencies": {
