@@ -19,15 +19,26 @@ Make an AJAX request easily and without a second thought.
 ```typescript
 import useRequest from 'honks/use-request';
 
-/* ... */
-
-const { data, error, isLoading, triggerRequest } = useRequest(fetch('https://swapi.dev/api/people/1'), {
+const Person = ({ haveTitlesRolled, moviesWatched }) => {
+  const { result, onError, triggerRequest } = useRequest<
+    { name: string },
+    string
+  >(async () => await fetch('https://swapi.dev/api/people/1'), {
     isRequesting: haveTitlesRolled,
     isDefaultLoading: false,
     dependencies: [moviesWatched.length]
-});
+  });
 
-/* ... */
-
-<button onClick={triggerRequest}>Look again!</button>
+  return (
+    <div>
+      <button onClick={triggerRequest}>Look again!</button>;
+      {onError((error) => (
+        <p>{error}</p>
+      ))}
+      {onSuccess(({ name }) => (
+        <h2>{name}</h2>
+      ))}
+    </div>
+  );
+};
 ```
