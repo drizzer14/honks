@@ -20,7 +20,7 @@ Make an AJAX request easily and without a second thought.
 import useRequest from 'honks/use-request';
 
 const Person = ({ haveTitlesRolled, moviesWatched }) => {
-  const { result, onError, triggerRequest } = useRequest<
+  const { result, onError, onSuccess, triggerRequest } = useRequest<
     { name: string },
     string
   >(async () => await fetch('https://swapi.dev/api/people/1'), {
