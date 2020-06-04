@@ -1,59 +1,127 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
-const useRequest = <D, E = unknown>(
-  requestCallback: (...args: unknown[]) => Promise<D>,
+export interface Success<D> {
+  readonly data: D;
+}
+
+export interface Fail<E> {
+  readonly error: E;
+}
+
+export type Result<D, E> = Success<D> | Fail<E> | undefined;
+
+const useRequest = <D, E>(
+  request: () => Promise<D>,
   options: {
     dependencies?: unknown[];
     isRequesting?: boolean;
     isDefaultLoading?: boolean;
   } = {}
 ): {
-  data: D | null;
-  error: E | null;
-  isLoading: boolean;
+  result: Result<D, E>;
+
+  isSuccess(_result: Result<D, E>): _result is Success<D>;
+  onSuccess<R>(callback: (data: D) => R): R | null;
+
+  isFail(_result: Result<D, E>): _result is Fail<E>;
+  onFail<R>(callback: (error: E) => R): R | null;
+
+  isPending(_result: Result<D, E>): _result is undefined;
+  onPending<R>(callback: () => R): R | null;
+
   triggerRequest(): void;
 } => {
   const {
     dependencies = [],
     isRequesting = true,
     isDefaultLoading = true
-  } = options;
+  } = useMemo(() => options, [JSON.stringify(options)]);
 
-  const [isMounted, setMounted] = useState(false);
+  const [hasMounted, setMounted] = useState(false);
+
+  const [_, triggerRequest] = useState(false);
+
+  const [isLoading, setLoading] = useState(isDefaultLoading);
+  const [result, setResult] = useState<Result<D, E>>();
 
   useEffect(() => {
     setMounted(true);
 
-    return () => {
-      setMounted(false);
-    };
+    return () => setMounted(false);
   }, []);
 
-  const [data, setData] = useState<D | null>(null);
-  const [error, setError] = useState<E | null>(null);
-  const [isLoading, setLoading] = useState(isDefaultLoading);
-  const [_, triggerRequest] = useState(false);
-
   useEffect(() => {
-    if (isRequesting && isMounted) {
+    if (isRequesting && hasMounted) {
       (async () => {
         try {
-          setError(null);
           setLoading(true);
+          setResult(undefined);
 
-          const requestData = await requestCallback();
+          const data = await request();
 
-          setData(requestData);
+          setResult({ data });
         } catch (error) {
-          setError(error);
+          setResult({ error });
         } finally {
           setLoading(false);
         }
       })();
     }
-  }, [_, isRequesting, isMounted, ...dependencies]);
+  }, [_, isRequesting, hasMounted, ...dependencies]);
 
-  return { data, error, isLoading, triggerRequest: () => triggerRequest(!_) };
+  const isSuccess = useCallback(
+    (_result: Result<D, E>): _result is Success<D> => {
+      return !isLoading && _result !== undefined && 'data' in _result;
+    },
+    [isLoading]
+  );
+
+  const isFail = useCallback(
+    (_result: Result<D, E>): _result is Fail<E> => {
+      return !isLoading && _result !== undefined && 'error' in _result;
+    },
+    [isLoading]
+  );
+
+  const isPending = useCallback(
+    (_result: Result<D, E>): _result is undefined => {
+      return isLoading && _result === undefined;
+    },
+    [isLoading]
+  );
+
+  return {
+    result,
+
+    isSuccess,
+    onSuccess: <R>(callback: (data: D) => R): R | null => {
+      if (isSuccess(result)) {
+        return callback(result.data);
+      }
+
+      return null;
+    },
+
+    isFail,
+    onFail: <R>(callback: (error: E) => R): R | null => {
+      if (isFail(result)) {
+        return callback(result.error);
+      }
+
+      return null;
+    },
+
+    isPending,
+    onPending: <R>(callback: () => R): R | null => {
+      if (isPending(result)) {
+        return callback();
+      }
+
+      return null;
+    },
+
+    triggerRequest: () => triggerRequest(!_)
+  };
 };
 
 export default useRequest;
