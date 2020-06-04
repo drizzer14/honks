@@ -76,11 +76,33 @@ const useRequest = <D, E>(
     [isLoading]
   );
 
+  const onSuccess = useCallback(
+    <R>(callback: (data: D) => R): R | null => {
+      if (isSuccess(result)) {
+        return callback(result.data);
+      }
+
+      return null;
+    },
+    [isSuccess(result), JSON.stringify(result)]
+  );
+
   const isFail = useCallback(
     (_result: Result<D, E>): _result is Fail<E> => {
       return !isLoading && _result !== undefined && 'error' in _result;
     },
     [isLoading]
+  );
+
+  const onFail = useCallback(
+    <R>(callback: (error: E) => R): R | null => {
+      if (isFail(result)) {
+        return callback(result.error);
+      }
+
+      return null;
+    },
+    [isFail(result), JSON.stringify(result)]
   );
 
   const isPending = useCallback(
@@ -90,35 +112,28 @@ const useRequest = <D, E>(
     [isLoading]
   );
 
-  return {
-    result,
-
-    isSuccess,
-    onSuccess: <R>(callback: (data: D) => R): R | null => {
-      if (isSuccess(result)) {
-        return callback(result.data);
-      }
-
-      return null;
-    },
-
-    isFail,
-    onFail: <R>(callback: (error: E) => R): R | null => {
-      if (isFail(result)) {
-        return callback(result.error);
-      }
-
-      return null;
-    },
-
-    isPending,
-    onPending: <R>(callback: () => R): R | null => {
+  const onPending = useCallback(
+    <R>(callback: () => R): R | null => {
       if (isPending(result)) {
         return callback();
       }
 
       return null;
     },
+    [isLoading, isPending(result)]
+  );
+
+  return {
+    result,
+
+    isSuccess,
+    onSuccess,
+
+    isFail,
+    onFail,
+
+    isPending,
+    onPending,
 
     triggerRequest: () => triggerRequest(!_)
   };
