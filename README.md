@@ -10,35 +10,4 @@ or
 $ yarn add honks
 ```
 
-- [useRequest](#userequest)
-
-### `useRequest`
-
-Make an AJAX request easily and without a second thought.
-
-```typescript
-import useRequest from 'honks/use-request';
-
-const Person = ({ haveTitlesRolled, moviesWatched }) => {
-  const { result, onError, onSuccess, triggerRequest } = useRequest<
-    { name: string },
-    string
-  >(async () => await fetch('https://swapi.dev/api/people/1'), {
-    isRequesting: haveTitlesRolled,
-    isDefaultLoading: false,
-    dependencies: [moviesWatched.length]
-  });
-
-  return (
-    <div>
-      <button onClick={triggerRequest}>Look again!</button>;
-      {onError((error) => (
-        <p>{error}</p>
-      ))}
-      {onSuccess(({ name }) => (
-        <h2>{name}</h2>
-      ))}
-    </div>
-  );
-};
-```
+- [useRequest](src/use-request/use-request.md)
