@@ -20,10 +20,7 @@ const error = {
 const hookCall = (options?: UseRequestOptions) => {
   return renderHook(
     (_options) =>
-      useRequest<{ name: string }, typeof error>(
-        async () => fetch(),
-        _options
-      ),
+      useRequest<{ name: string }, typeof error>(async () => fetch(), _options),
     { initialProps: options }
   );
 };
