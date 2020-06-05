@@ -3,7 +3,7 @@
   "env": {
     "browser": true
   },
-  "extends": ["plugin:prettier/recommended", "prettier/@typescript-eslint"],
+  "extends": ["plugin:react-hooks/recommended", "prettier/@typescript-eslint", "airbnb-base", "plugin:prettier/recommended"],
   "plugins": ["@typescript-eslint"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
