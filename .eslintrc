@@ -13,5 +13,8 @@
     "import/parsers": {
       "@typescript-eslint/parser": [".ts", ".tsx"]
     }
+  },
+  "rules": {
+    "import/prefer-default-export": "off"
   }
 }
