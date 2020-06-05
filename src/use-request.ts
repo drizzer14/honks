@@ -1,33 +1,35 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
-export interface Success<D> {
+interface Success<D> {
   readonly data: D;
 }
 
-export interface Fail<E> {
+interface Fail<E> {
   readonly error: E;
 }
 
-export type Result<D, E> = Success<D> | Fail<E> | undefined;
+type Result<D, E> = Success<D> | Fail<E> | undefined;
 
-const useRequest = <D, E>(
+export interface UseRequestOptions {
+  dependencies?: unknown[];
+  isRequesting?: boolean;
+  isDefaultLoading?: boolean;
+}
+
+const useRequest = <D, E = Error>(
   request: () => Promise<D>,
-  options: {
-    dependencies?: unknown[];
-    isRequesting?: boolean;
-    isDefaultLoading?: boolean;
-  } = {}
+  options: UseRequestOptions = {}
 ): {
   result: Result<D, E>;
 
   isSuccess(_result: Result<D, E>): _result is Success<D>;
-  onSuccess<R>(callback: (data: D) => R): R | null;
+  onSuccess<R>(callback: (data: D) => R): R | void;
 
   isFail(_result: Result<D, E>): _result is Fail<E>;
-  onFail<R>(callback: (error: E) => R): R | null;
+  onFail<R>(callback: (error: E) => R): R | void;
 
-  isPending(_result: Result<D, E>): _result is undefined;
-  onPending<R>(callback: () => R): R | null;
+  isPending(): boolean;
+  onPending<R>(callback: () => R): R | void;
 
   triggerRequest(): void;
 } => {
@@ -35,14 +37,13 @@ const useRequest = <D, E>(
     dependencies = [],
     isRequesting = true,
     isDefaultLoading = true
-  } = useMemo(() => options, [JSON.stringify(options)]);
+  } = options;
 
   const [hasMounted, setMounted] = useState(false);
-
-  const [_, triggerRequest] = useState(false);
-
+  const [requestTrigger, setRequestTrigger] = useState(false);
   const [isLoading, setLoading] = useState(isDefaultLoading);
-  const [result, setResult] = useState<Result<D, E>>();
+
+  const [result, setResult] = useState<Result<D, E>>(undefined);
 
   useEffect(() => {
     setMounted(true);
@@ -67,61 +68,57 @@ const useRequest = <D, E>(
         }
       })();
     }
-  }, [_, isRequesting, hasMounted, ...dependencies]);
+  }, [requestTrigger, isRequesting, hasMounted, ...dependencies]);
 
-  const isSuccess = useCallback(
-    (_result: Result<D, E>): _result is Success<D> => {
-      return !isLoading && _result !== undefined && 'data' in _result;
-    },
-    [isLoading]
-  );
+  const isSuccess = useCallback((_result: Result<D, E>): _result is Success<
+    D
+  > => {
+    // eslint-disable-next-line no-prototype-builtins
+    return (_result || {}).hasOwnProperty('data');
+  }, []);
 
   const onSuccess = useCallback(
-    <R>(callback: (data: D) => R): R | null => {
+    // eslint-disable-next-line consistent-return
+    <R>(callback: (data: D) => R): R | void => {
       if (isSuccess(result)) {
         return callback(result.data);
       }
-
-      return null;
     },
-    [isSuccess(result), JSON.stringify(result)]
+    [isSuccess(result), result]
   );
 
-  const isFail = useCallback(
-    (_result: Result<D, E>): _result is Fail<E> => {
-      return !isLoading && _result !== undefined && 'error' in _result;
-    },
-    [isLoading]
-  );
+  const isFail = useCallback((_result: Result<D, E>): _result is Fail<E> => {
+    // eslint-disable-next-line no-prototype-builtins
+    return (_result || {}).hasOwnProperty('error');
+  }, []);
 
   const onFail = useCallback(
-    <R>(callback: (error: E) => R): R | null => {
+    // eslint-disable-next-line consistent-return
+    <R>(callback: (error: E) => R): R | void => {
       if (isFail(result)) {
         return callback(result.error);
       }
-
-      return null;
     },
-    [isFail(result), JSON.stringify(result)]
+    [isFail(result), result]
   );
 
-  const isPending = useCallback(
-    (_result: Result<D, E>): _result is undefined => {
-      return isLoading && _result === undefined;
+  const isPending = useCallback(() => {
+    return isLoading;
+  }, [isLoading]);
+
+  const onPending = useCallback(
+    // eslint-disable-next-line consistent-return
+    <R>(callback: () => R): R | void => {
+      if (isPending()) {
+        return callback();
+      }
     },
     [isLoading]
   );
 
-  const onPending = useCallback(
-    <R>(callback: () => R): R | null => {
-      if (isPending(result)) {
-        return callback();
-      }
-
-      return null;
-    },
-    [isLoading, isPending(result)]
-  );
+  const triggerRequest = useCallback(() => setRequestTrigger(!requestTrigger), [
+    requestTrigger
+  ]);
 
   return {
     result,
@@ -135,7 +132,7 @@ const useRequest = <D, E>(
     isPending,
     onPending,
 
-    triggerRequest: () => triggerRequest(!_)
+    triggerRequest
   };
 };
 
