@@ -10,7 +10,9 @@ describe('index', () => {
   });
 
   it('Should export all hooks', () => {
-    const hooksCount = readdirSync(resolve(__dirname, '../src')).length - 1;
+    const hooksCount = readdirSync(
+      resolve(__dirname, '../src')
+    ).filter((hook: string) => /^use-/.test(hook)).length;
 
     expect(Object.values(Index).length).toEqual(hooksCount);
   });
