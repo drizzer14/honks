@@ -1,11 +1,11 @@
 module.exports = {
   testEnvironment: 'node',
-  roots: ['<rootDir>/src', '<rootDir>/tests'],
+  roots: ['<rootDir>/src'],
   preset: 'ts-jest',
   transform: {
-    '^.+\\.ts$': 'ts-jest'
+    '^.+\\.tsx?$': 'ts-jest'
   },
-  testRegex: '.*\\.(spec|test).ts$',
+  testRegex: '.*\\.spec.tsx?$',
   coveragePathIgnorePatterns: ['/node_modules/'],
   coverageThreshold: {
     global: {
@@ -15,10 +15,10 @@ module.exports = {
       statements: -250
     }
   },
-  collectCoverageFrom: ['src/**/*.ts', 'tests/**/*.ts'],
+  collectCoverageFrom: ['src/**/*.ts', 'src/**/*.tsx'],
   clearMocks: true,
-  moduleFileExtensions: ['ts', 'js'],
-  moduleDirectories: ['node_modules', 'src', 'tests'],
+  moduleFileExtensions: ['ts', 'tsx', 'js'],
+  moduleDirectories: ['node_modules', 'src'],
   moduleNameMapper: {
     '^/(.*)$': '<rootDir>/src/$1'
   },

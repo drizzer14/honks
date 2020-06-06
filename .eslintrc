@@ -5,14 +5,13 @@
     "jest/globals": true
   },
   "extends": [
-    "plugin:react-hooks/recommended",
-    "prettier/@typescript-eslint",
     "airbnb-base",
-    "plugin:prettier/recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:react-hooks/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint",
+    "plugin:prettier/recommended"
   ],
-  "plugins": ["import", "@typescript-eslint", "jest"],
+  "plugins": ["import", "@typescript-eslint", "jest", "prettier"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "sourceType": "module"
@@ -27,6 +26,8 @@
   },
   "rules": {
     "import/prefer-default-export": "off",
-    "import/extensions": "off"
+    "import/extensions": "off",
+    "import/no-extraneous-dependencies": "off",
+    "require-await": "warn"
   }
 }

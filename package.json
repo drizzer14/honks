@@ -16,12 +16,16 @@
     "test": "jest",
     "build:clear": "rimraf lib",
     "build:copy": "copyfiles package.json LICENSE README.md lib",
-    "build:js": "tsc -p tsconfig.build.json",
-    "build": "npm-run-all -s build:clear -p build:copy build:js",
+    "build:js": "babel src --out-dir lib",
+    "build:dts": "tsc -p tsconfig.build.json",
+    "build": "npm-run-all -s build:clear -p build:copy build:js build:dts",
     "release": "standard-version",
     "publication": "yarn publish lib"
   },
   "devDependencies": {
+    "@babel/cli": "^7.10.1",
+    "@babel/core": "^7.10.2",
+    "@babel/preset-typescript": "^7.10.1",
     "@testing-library/react-hooks": "^3.3.0",
     "@types/jest": "^25.2.3",
     "@types/node-fetch": "^2.5.7",

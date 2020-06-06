@@ -9,5 +9,3 @@ $ npm i honks
 or
 $ yarn add honks
 ```
-
-- [useRequest](src/use-request/use-request.md)
