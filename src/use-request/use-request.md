@@ -17,10 +17,10 @@ const Person = ({ haveTitlesRolled, enemy }) => {
     result,
     onPending,
     onSuccess,
-    onError,
+    onFail,
     isPending,
     isSuccess,
-    isError,
+    isFail,
     triggerRequest
   } = useRequest(
     async () => {
@@ -35,7 +35,7 @@ const Person = ({ haveTitlesRolled, enemy }) => {
   );
 
   const name = isSuccess(result) ? result.data.name : 'Unknown';
-  const errorMessage = isError(result) ? result.error.message : 'No error';
+  const errorMessage = isFail(result) ? result.error.message : 'No error';
   const renderLoader = () => {
     if (isPending()) {
       return <Loader />;
@@ -52,7 +52,7 @@ const Person = ({ haveTitlesRolled, enemy }) => {
         return <p>{data.name}</p>;
       })}
 
-      {onError((error) => {
+      {onFail((error) => {
         return <p>{error.message}</p>;
       })}
 
