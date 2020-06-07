@@ -1,1 +1,1 @@
-export { default, UseRequestOptions } from './use-request';
+export { default } from './use-request';
