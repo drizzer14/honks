@@ -10,15 +10,18 @@ interface Fail<E> {
 
 type Result<D, E> = Success<D> | Fail<E> | undefined;
 
-export interface UseRequestOptions {
-  dependencies?: unknown[];
-  isRequesting?: boolean;
-  isDefaultLoading?: boolean;
-}
-
+/**
+ * Provides an interface for handling an AJAX request in a React component.
+ * Returns `result` which represents either an object with `data` or `error`,
+ * of is `undefined`, while the request is still pending.
+ *
+ * @param requestCallback An async callback that makes a request
+ *
+ * @returns `on-` callbacks and `is-` flags provide a declarative way to work with needed `result`
+ * state, and a `sendRequest` function that makes a request when called.
+ */
 const useRequest = <D, E = Error>(
-  request: () => Promise<D>,
-  options: UseRequestOptions = {}
+  requestCallback: () => Promise<D>
 ): {
   result: Result<D, E>;
 
@@ -31,17 +34,10 @@ const useRequest = <D, E = Error>(
   isPending(): boolean;
   onPending<R>(callback: () => R): R | void;
 
-  triggerRequest(): void;
+  sendRequest(): Promise<void>;
 } => {
-  const {
-    dependencies = [],
-    isRequesting = true,
-    isDefaultLoading = true
-  } = options;
-
   const [hasMounted, setMounted] = useState(false);
-  const [requestTrigger, setRequestTrigger] = useState(false);
-  const [isLoading, setLoading] = useState(isDefaultLoading);
+  const [hasRequested, setRequested] = useState(false);
 
   const [result, setResult] = useState<Result<D, E>>(undefined);
 
@@ -51,24 +47,21 @@ const useRequest = <D, E = Error>(
     return () => setMounted(false);
   }, []);
 
-  useEffect(() => {
-    if (isRequesting && hasMounted) {
-      (async () => {
-        try {
-          setLoading(true);
-          setResult(undefined);
+  const sendRequest = useCallback(async () => {
+    if (hasMounted) {
+      setRequested(true);
 
-          const data = await request();
+      try {
+        setResult(undefined);
 
-          setResult({ data });
-        } catch (error) {
-          setResult({ error });
-        } finally {
-          setLoading(false);
-        }
-      })();
+        const data = await requestCallback();
+
+        setResult({ data });
+      } catch (error) {
+        setResult({ error });
+      }
     }
-  }, [requestTrigger, isRequesting, hasMounted, ...dependencies]);
+  }, [hasMounted, requestCallback]);
 
   const isSuccess = useCallback((_result: Result<D, E>): _result is Success<
     D
@@ -78,11 +71,8 @@ const useRequest = <D, E = Error>(
   }, []);
 
   const onSuccess = useCallback(
-    // eslint-disable-next-line consistent-return
     <R>(callback: (data: D) => R): R | void => {
-      if (isSuccess(result)) {
-        return callback(result.data);
-      }
+      return isSuccess(result) ? callback(result.data) : undefined;
     },
     [isSuccess(result), result]
   );
@@ -93,35 +83,26 @@ const useRequest = <D, E = Error>(
   }, []);
 
   const onFail = useCallback(
-    // eslint-disable-next-line consistent-return
     <R>(callback: (error: E) => R): R | void => {
-      if (isFail(result)) {
-        return callback(result.error);
-      }
+      return isFail(result) ? callback(result.error) : undefined;
     },
     [isFail(result), result]
   );
 
   const isPending = useCallback(() => {
-    return isLoading;
-  }, [isLoading]);
+    return !isFail(result) && !isSuccess(result) && hasRequested;
+  }, [isFail(result), isSuccess(result), result, hasRequested]);
 
   const onPending = useCallback(
-    // eslint-disable-next-line consistent-return
     <R>(callback: () => R): R | void => {
-      if (isPending()) {
-        return callback();
-      }
+      return isPending() ? callback() : undefined;
     },
-    [isLoading]
+    [isPending()]
   );
-
-  const triggerRequest = useCallback(() => setRequestTrigger(!requestTrigger), [
-    requestTrigger
-  ]);
 
   return {
     result,
+    sendRequest,
 
     isSuccess,
     onSuccess,
@@ -130,9 +111,7 @@ const useRequest = <D, E = Error>(
     onFail,
 
     isPending,
-    onPending,
-
-    triggerRequest
+    onPending
   };
 };
 
