@@ -15,6 +15,17 @@ describe('useRequest', () => {
     expect(sut.result.current.isPending()).toBe(false);
   });
 
+  it('Should send request when sendRequest is called', async () => {
+    const request = jest.fn().mockResolvedValue({});
+    sut = renderHook(() => useRequest(request));
+
+    const { sendRequest } = sut.result.current;
+
+    await act(() => sendRequest());
+
+    expect(request).toHaveBeenCalled();
+  });
+
   describe('Making a request', () => {
     let dataSourceDeffered: {
       promise: Promise<unknown>;
@@ -38,9 +49,7 @@ describe('useRequest', () => {
         };
       })();
 
-      sut = renderHook(() =>
-        useRequest(async () => dataSourceDeffered.promise)
-      );
+      sut = renderHook(() => useRequest(() => dataSourceDeffered.promise));
     });
 
     describe('When data source has been resolved', () => {
@@ -77,7 +86,7 @@ describe('useRequest', () => {
 
         const callback = jest.fn();
 
-        expect(onFail(callback)).toBe(undefined);
+        expect(onFail(callback)).toBeUndefined();
         expect(callback).not.toHaveBeenCalled();
       });
 
@@ -86,7 +95,7 @@ describe('useRequest', () => {
 
         const callback = jest.fn();
 
-        expect(onPending(callback)).toBe(undefined);
+        expect(onPending(callback)).toBeUndefined();
         expect(callback).not.toHaveBeenCalled();
       });
     });
@@ -126,7 +135,7 @@ describe('useRequest', () => {
 
         const callback = jest.fn();
 
-        expect(onSuccess(callback)).toBe(undefined);
+        expect(onSuccess(callback)).toBeUndefined();
         expect(callback).not.toHaveBeenCalled();
       });
 
@@ -135,38 +144,9 @@ describe('useRequest', () => {
 
         const callback = jest.fn();
 
-        expect(onPending(callback)).toBe(undefined);
+        expect(onPending(callback)).toBeUndefined();
         expect(callback).not.toHaveBeenCalled();
       });
-    });
-  });
-
-  describe('Triggering a request', () => {
-    const request = jest.fn().mockResolvedValue({});
-
-    beforeEach(() => {
-      sut = renderHook(() => useRequest(request));
-    });
-
-    it('Should send request when sendRequest is called', async () => {
-      const { sendRequest } = sut.result.current;
-
-      await act(() => sendRequest());
-
-      expect(request).toHaveBeenCalled();
-    });
-
-    it('Should not request when unmounted', async () => {
-      const { sendRequest } = sut.result.current;
-
-      await act(() => sendRequest());
-
-      const { unmount, rerender } = sut;
-
-      unmount();
-      rerender();
-
-      expect(request).toHaveBeenCalledTimes(1);
     });
   });
 });

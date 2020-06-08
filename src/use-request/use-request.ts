@@ -63,12 +63,13 @@ const useRequest = <D, E = Error>(
     }
   }, [hasMounted, requestCallback]);
 
-  const isSuccess = useCallback((_result: Result<D, E>): _result is Success<
-    D
-  > => {
-    // eslint-disable-next-line no-prototype-builtins
-    return (_result || {}).hasOwnProperty('data');
-  }, []);
+  const isSuccess = useCallback(
+    (requestResult: Result<D, E>): requestResult is Success<D> => {
+      // eslint-disable-next-line no-prototype-builtins
+      return (requestResult || {}).hasOwnProperty('data');
+    },
+    []
+  );
 
   const onSuccess = useCallback(
     <R>(callback: (data: D) => R): R | void => {
@@ -77,10 +78,13 @@ const useRequest = <D, E = Error>(
     [isSuccess(result), result]
   );
 
-  const isFail = useCallback((_result: Result<D, E>): _result is Fail<E> => {
-    // eslint-disable-next-line no-prototype-builtins
-    return (_result || {}).hasOwnProperty('error');
-  }, []);
+  const isFail = useCallback(
+    (requestResult: Result<D, E>): requestResult is Fail<E> => {
+      // eslint-disable-next-line no-prototype-builtins
+      return (requestResult || {}).hasOwnProperty('error');
+    },
+    []
+  );
 
   const onFail = useCallback(
     <R>(callback: (error: E) => R): R | void => {
