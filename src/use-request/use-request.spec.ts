@@ -4,7 +4,7 @@ import {
   RenderHookResult
 } from '@testing-library/react-hooks';
 
-import useRequest from './index';
+import useRequest from './use-request';
 
 describe('useRequest', () => {
   let sut: RenderHookResult<Promise<unknown>, ReturnType<typeof useRequest>>;
@@ -26,6 +26,16 @@ describe('useRequest', () => {
     expect(request).toHaveBeenCalled();
   });
 
+  it('Should not make a request when unmounted', () => {
+    const request = jest.fn().mockResolvedValue({});
+    sut = renderHook(() => useRequest(request));
+
+    sut.unmount();
+    sut.result.current.sendRequest();
+
+    expect(request).not.toHaveBeenCalled();
+  });
+
   describe('Making a request', () => {
     let dataSourceDeffered: {
       promise: Promise<unknown>;
@@ -37,6 +47,7 @@ describe('useRequest', () => {
       dataSourceDeffered = (() => {
         let resolve: any;
         let reject: any;
+
         const promise = new Promise((_resolve, _reject) => {
           resolve = _resolve;
           reject = _reject;
