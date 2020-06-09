@@ -1,10 +1,22 @@
 {
   "root": true,
   "env": {
-    "browser": true
+    "browser": true,
+    "jest/globals": true
   },
-  "extends": ["plugin:prettier/recommended", "prettier/@typescript-eslint"],
-  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "airbnb-base",
+    "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": [
+    "import",
+    "@typescript-eslint",
+    "react-hooks",
+    "jest",
+    "prettier"
+  ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "sourceType": "module"
@@ -12,6 +24,15 @@
   "settings": {
     "import/parsers": {
       "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
+    "import/resolver": {
+      "typescript": {}
     }
+  },
+  "rules": {
+    "import/prefer-default-export": "off",
+    "import/extensions": "off",
+    "import/no-extraneous-dependencies": "off",
+    "require-await": "warn"
   }
 }
