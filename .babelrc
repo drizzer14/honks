@@ -1,11 +1,4 @@
 {
-  "presets": [
-    [
-      "@babel/preset-typescript",
-      {
-        "extensions": [".ts", ".tsx"]
-      }
-    ]
-  ],
+  "presets": [["@babel/preset-typescript"]],
   "ignore": ["**/*.spec.ts", "**/*.spec.tsx"]
 }

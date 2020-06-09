@@ -4,9 +4,8 @@
     "target": "ES2019",
     "moduleResolution": "node",
     "lib": ["esnext", "dom"],
-    "baseUrl": "src",
+    "jsx": "react",
     "rootDir": "src",
-    "outDir": "lib",
     "emitDeclarationOnly": true,
     "declaration": true,
     "declarationDir": "lib",
@@ -19,6 +18,5 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true
-  },
-  "exclude": ["node_modules"]
+  }
 }
