@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import useMount from '../use-mount';
 
 interface Success<D> {
   readonly data: D;
@@ -15,7 +16,7 @@ type Result<D, E> = Success<D> | Fail<E> | undefined;
  * Returns `result` which represents either an object with `data` or `error`,
  * of is `undefined`, while the request is still pending.
  *
- * @param requestCallback An async callback that makes a request
+ * @param {() => Promise<D>} requestCallback An async callback that makes a request
  *
  * @returns `on-` callbacks and `is-` flags provide a declarative way to work with needed `result`
  * state, and a `sendRequest` function that makes a request when called.
@@ -36,19 +37,14 @@ const useRequest = <D, E = Error>(
 
   sendRequest(): Promise<void>;
 } => {
-  const [hasMounted, setMounted] = useState(false);
+  const hasMounted = useMount();
+
   const [hasRequested, setRequested] = useState(false);
 
   const [result, setResult] = useState<Result<D, E>>(undefined);
 
-  useEffect(() => {
-    setMounted(true);
-
-    return () => setMounted(false);
-  }, []);
-
   const sendRequest = useCallback(async () => {
-    if (hasMounted) {
+    if (hasMounted()) {
       setRequested(true);
 
       try {
@@ -61,7 +57,7 @@ const useRequest = <D, E = Error>(
         setResult({ error });
       }
     }
-  }, [hasMounted, requestCallback]);
+  }, [hasMounted(), requestCallback]);
 
   const isSuccess = useCallback(
     (requestResult: Result<D, E>): requestResult is Success<D> => {
