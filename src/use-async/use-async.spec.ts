@@ -4,34 +4,39 @@ import {
   RenderHookResult
 } from '@testing-library/react-hooks';
 
-import useRequest from './use-request';
+import useAsync from './use-async';
 
-describe('useRequest', () => {
-  let sut: RenderHookResult<Promise<unknown>, ReturnType<typeof useRequest>>;
+describe('useAsync', () => {
+  let sut: RenderHookResult<Promise<unknown>, ReturnType<typeof useAsync>>;
 
   it('Should not be pending by default', () => {
-    sut = renderHook(() => useRequest(jest.fn().mockResolvedValue({})));
+    sut = renderHook(() => useAsync(jest.fn().mockResolvedValue({})));
 
     expect(sut.result.current.isPending()).toBe(false);
   });
 
-  it('Should send request when sendRequest is called', async () => {
+  it('Should send request when call is called', async () => {
     const request = jest.fn().mockResolvedValue({});
-    sut = renderHook(() => useRequest(request));
+    sut = renderHook(() => useAsync(request));
 
-    const { sendRequest } = sut.result.current;
+    const { call } = sut.result.current;
+    const { waitForNextUpdate } = sut;
 
-    await act(() => sendRequest());
+    await act(async () => {
+      call();
+
+      await waitForNextUpdate();
+    });
 
     expect(request).toHaveBeenCalled();
   });
 
   it('Should not make a request when unmounted', () => {
     const request = jest.fn().mockResolvedValue({});
-    sut = renderHook(() => useRequest(request));
+    sut = renderHook(() => useAsync(request));
 
     sut.unmount();
-    sut.result.current.sendRequest();
+    sut.result.current.call();
 
     expect(request).not.toHaveBeenCalled();
   });
@@ -60,7 +65,7 @@ describe('useRequest', () => {
         };
       })();
 
-      sut = renderHook(() => useRequest(() => dataSourceDeffered.promise));
+      sut = renderHook(() => useAsync(() => dataSourceDeffered.promise));
     });
 
     describe('When data source has been resolved', () => {
@@ -72,7 +77,9 @@ describe('useRequest', () => {
         await act(async () => {
           dataSourceDeffered.resolve(data);
 
-          await sut.result.current.sendRequest();
+          sut.result.current.call();
+
+          await sut.waitForNextUpdate();
         });
       });
 
@@ -82,22 +89,22 @@ describe('useRequest', () => {
         expect(result).toStrictEqual({ data });
       });
 
-      it('Should call onSuccess with result.data', () => {
-        const { onSuccess } = sut.result.current;
+      it('Should call onResolve with result.data', () => {
+        const { onResolve } = sut.result.current;
         const successResult = {};
 
         const callback = jest.fn().mockReturnValue(successResult);
 
-        expect(onSuccess(callback)).toBe(successResult);
+        expect(onResolve(callback)).toBe(successResult);
         expect(callback).toHaveBeenCalledWith(data);
       });
 
-      it('Should not call onFail', () => {
-        const { onFail } = sut.result.current;
+      it('Should not call onReject', () => {
+        const { onReject } = sut.result.current;
 
         const callback = jest.fn();
 
-        expect(onFail(callback)).toBeUndefined();
+        expect(onReject(callback)).toBeUndefined();
         expect(callback).not.toHaveBeenCalled();
       });
 
@@ -121,7 +128,7 @@ describe('useRequest', () => {
         await act(async () => {
           dataSourceDeffered.reject(error);
 
-          await sut.result.current.sendRequest();
+          await sut.result.current.call();
         });
       });
 
@@ -131,22 +138,22 @@ describe('useRequest', () => {
         expect(result).toStrictEqual({ error });
       });
 
-      it('Should call onFail with result.error', () => {
-        const { onFail } = sut.result.current;
+      it('Should call onReject with result.error', () => {
+        const { onReject } = sut.result.current;
 
         const failResult = {};
         const callback = jest.fn().mockReturnValue(failResult);
 
-        expect(onFail(callback)).toBe(failResult);
+        expect(onReject(callback)).toBe(failResult);
         expect(callback).toHaveBeenCalledWith(error);
       });
 
-      it('Should not call onSuccess', () => {
-        const { onSuccess } = sut.result.current;
+      it('Should not call onResolve', () => {
+        const { onResolve } = sut.result.current;
 
         const callback = jest.fn();
 
-        expect(onSuccess(callback)).toBeUndefined();
+        expect(onResolve(callback)).toBeUndefined();
         expect(callback).not.toHaveBeenCalled();
       });
 
