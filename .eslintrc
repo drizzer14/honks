@@ -10,11 +10,19 @@
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
     "prettier/@typescript-eslint",
+    "plugin:sonarjs/recommended",
+    "plugin:promise/recommended",
     "plugin:prettier/recommended"
   ],
   "plugins": [
     "import",
-    "jest"
+    "sonarjs",
+    "promise",
+    "react",
+    "react-hooks",
+    "@typescript-eslint",
+    "jest",
+    "prettier"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -29,6 +37,7 @@
     }
   },
   "rules": {
+    "prettier/prettier": "warn",
     "import/prefer-default-export": "off",
     "import/extensions": "off",
     "import/no-extraneous-dependencies": "off",
