@@ -46,7 +46,7 @@ interface UseAsync<D, E> {
  * @returns `on-` callbacks and `is-` flags provide a declarative way to work with needed `result`
  * state, and a `sendRequest` function that makes a request when called.
  */
-const useAsync = <D, E = Error>(callback: () => Promise<D>): UseAsync<D, E> => {
+function useAsync<D, E = Error>(callback: () => Promise<D>): UseAsync<D, E> {
   const hasMounted = useMount();
 
   const [hasRequested, setRequested] = useState(false);
@@ -61,7 +61,7 @@ const useAsync = <D, E = Error>(callback: () => Promise<D>): UseAsync<D, E> => {
 
       callback()
         .then((data) => {
-          setResult({ data });
+          return setResult({ data });
         })
         .catch((error) => {
           setResult({ error });
@@ -131,6 +131,6 @@ const useAsync = <D, E = Error>(callback: () => Promise<D>): UseAsync<D, E> => {
     isPending,
     onPending
   };
-};
+}
 
 export default useAsync;
