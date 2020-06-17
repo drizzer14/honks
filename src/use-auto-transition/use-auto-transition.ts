@@ -10,10 +10,10 @@ import { timeout } from '../utils';
  *
  * @returns {[React.RefObject<R>, string]} A tuple of `ref` to be placed on a HTML element and a computed property value
  */
-const useAutoTransition = <R extends HTMLElement = HTMLElement>(
+function useAutoTransition<R extends HTMLElement = HTMLElement>(
   getValue: (element: R) => number,
   [handle, transitionSpeed = 300]: [boolean, number?]
-): [RefObject<R>, string] => {
+): [RefObject<R>, string] {
   const [preservedValue, setPreservedValue] = useState<number | null>(0);
   const [actualValue, setActualValue] = useState<number | null>(0);
 
@@ -91,6 +91,6 @@ const useAutoTransition = <R extends HTMLElement = HTMLElement>(
       return `${value}`;
     })(actualValue)
   ];
-};
+}
 
 export default useAutoTransition;

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef } from 'react';
  *
  * @returns {() => boolean} A function that returns current mounting state
  */
-const useMount = (): (() => boolean) => {
+function useMount(): () => boolean {
   let { current: hasMounted } = useRef(false);
 
   useEffect(() => {
@@ -17,6 +17,6 @@ const useMount = (): (() => boolean) => {
   }, []);
 
   return useCallback(() => hasMounted, []);
-};
+}
 
 export default useMount;
