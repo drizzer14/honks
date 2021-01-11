@@ -15,11 +15,11 @@
   "scripts": {
     "test": "jest",
     "prebuild": "rimraf lib",
-    "prepack": "copyfiles package.json LICENSE README.md lib",
     "build:js": "babel src --out-dir lib --extensions '.ts,.tsx'",
     "build:dts": "tsc -p tsconfig.build.json",
     "build": "npm-run-all -p build:js build:dts",
     "bump": "standard-version",
+    "prerelease": "copyfiles package.json LICENSE README.md lib",
     "release": "yarn build && yarn publish lib"
   },
   "devDependencies": {
