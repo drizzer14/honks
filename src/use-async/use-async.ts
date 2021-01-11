@@ -71,10 +71,7 @@ function useAsync<D, E = Error>(callback: () => Promise<D>): UseAsync<D, E> {
 
   const isResolved = useCallback(
     (requestResult: Result<D, E>): requestResult is Resolution<D> => {
-      return (
-        // eslint-disable-next-line no-prototype-builtins
-        requestResult !== undefined && requestResult.hasOwnProperty('data')
-      );
+      return requestResult !== undefined && 'data' in requestResult;
     },
     []
   );
@@ -90,10 +87,7 @@ function useAsync<D, E = Error>(callback: () => Promise<D>): UseAsync<D, E> {
 
   const isRejected = useCallback(
     (requestResult: Result<D, E>): requestResult is Rejection<E> => {
-      return (
-        // eslint-disable-next-line no-prototype-builtins
-        requestResult !== undefined && requestResult.hasOwnProperty('error')
-      );
+      return requestResult !== undefined && 'error' in requestResult;
     },
     []
   );
