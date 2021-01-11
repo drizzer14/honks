@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.4.1](https://github.com/drizzer14/honks/compare/v0.3.0...v0.4.1) (2021-01-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* Replace `useRequest` with `useAsync` hook with changed API
+* Replace `useRequest` with `useAsync` hook with changed API
+
+### Features
+
+* Replace `useRequest` with `useAsync` hook with changed API ([ba8c280](https://github.com/drizzer14/honks/commit/ba8c280eaf9166d69df9a0d0f2fb700458a7146f))
+* Replace `useRequest` with `useAsync` hook with changed API ([c547c49](https://github.com/drizzer14/honks/commit/c547c494743d333d5391828d7e1a9518215e25ba))
+
 ## [0.4.0](https://github.com/drizzer14/honks/compare/v0.3.0...v0.4.0) (2020-06-17)
 
 
